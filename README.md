@@ -1,6 +1,6 @@
 # fapi-tmpl
 
-`fapi-tmpl` is a minimal, database-independent FastAPI project template. It provides a clean scaffold with dependency injection, environment-aware configuration, dockerisation, and a lightweight test suite so you can start new services quickly without dragging in domain-specific code.
+`fapi-tmpl` is a minimal, database-independent FastAPI project template. It provides a clean scaffold with modern dependency injection using FastAPI's `Depends`, protocols for service interfaces, and a factory pattern for services. This enables high extensibility, maintainability, and testability. Includes environment-aware configuration, dockerisation, and a lightweight test suite so you can start new services quickly without dragging in domain-specific code.
 
 ## 🚀 Getting Started
 
@@ -41,16 +41,18 @@ just format   # auto-format with black and ruff --fix
 │   └── fapi_tmpl/
 │       ├── api/
 │       │   ├── main.py      # FastAPI app factory and router registration
-│       │   └── router.py    # Health check endpoint
+│       │   └── router.py    # Health check and greeting endpoints
 │       ├── config/
 │       │   ├── __init__.py
 │       │   └── app_settings.py  # Pydantic settings
-│       └── container.py    # Minimal dependency container
+│       ├── dependencies.py  # Dependency providers using FastAPI Depends
+│       ├── protocols/       # Protocol definitions for service interfaces
+│       └── services/        # Concrete service implementations
 ├── tests/
 │   ├── unit/
-│   │   └── test_dependency_container.py
 │   ├── intg/
-│   │   └── test_health.py
+│   │   ├── test_api.py      # Health endpoint tests
+│   │   └── test_greeting_api.py  # Greeting endpoint tests with DI overrides
 │   └── e2e/
 │       └── api/
 │           └── test_health.py
@@ -80,12 +82,13 @@ Environment variables are loaded from `.env` (managed by `just setup`):
 - `FAPI_TMPL_BIND_IP` / `FAPI_TMPL_BIND_PORT` – bind address when running under Docker (defaults `0.0.0.0:8000`).
 - `FAPI_TMPL_DEV_PORT` – port used by `just dev` (default `8000`).
 
-## ✅ Health Check
+## ✅ Endpoints
 
-The template ships with a single health endpoint:
+The template ships with health and greeting endpoints:
 
 ```http
 GET /health -> {"status": "ok"}
+GET /hello/{name} -> {"message": "Hello, {name}"}
 ```
 
 Use this as a foundation for adding your own routes, dependencies, and persistence layers.

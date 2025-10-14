@@ -81,8 +81,8 @@ test:
 
 local-test: 
     @just unit-test
-    @just intg-test
     @just sdk-test
+    @just intg-test
     @echo "✅ All local tests passed!"
 
 # Run unit tests
