@@ -21,9 +21,10 @@ def test_say_hello_with_override():
     # Override the dependency
     app.dependency_overrides[get_greeting_service] = lambda: MockGreetingService()
 
-    response = client.get("/hello/World")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Goodbye, World"}
-
-    # Always clear the override
-    app.dependency_overrides.clear()
+    try:
+        response = client.get("/hello/World")
+        assert response.status_code == 200
+        assert response.json() == {"message": "Goodbye, World"}
+    finally:
+        # Always clear the override
+        app.dependency_overrides.clear()
