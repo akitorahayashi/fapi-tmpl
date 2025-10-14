@@ -10,7 +10,6 @@ class MockFapiTmplClient:
 
     def get_health(self) -> dict[str, Any]:
         """Returns a fixed health status payload."""
-        print("MockFapiTmplClient.get_health() called")
         return {"status": "ok-mock"}
 
 
