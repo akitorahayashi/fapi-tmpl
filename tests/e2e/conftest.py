@@ -40,7 +40,6 @@ def e2e_environment() -> Generator[None, None, None]:
     compose_env = os.environ.copy()
     compose_env["FAPI_TMPL_BIND_IP"] = HOST_IP
     compose_env["FAPI_TMPL_BIND_PORT"] = HOST_PORT
-    compose_env.setdefault("CONTAINER_ENV", "production")
 
     up_command = [
         "docker",
