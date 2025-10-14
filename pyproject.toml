@@ -28,7 +28,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/fapi_tmpl"]
+packages = ["src/fapi_tmpl", "sdk/fapi_tmpl_sdk"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

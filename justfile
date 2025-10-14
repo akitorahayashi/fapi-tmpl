@@ -82,6 +82,7 @@ test:
 local-test: 
     @just unit-test
     @just intg-test
+    @just sdk-test
     @echo "✅ All local tests passed!"
 
 # Run unit tests
@@ -93,6 +94,11 @@ unit-test:
 intg-test:
     @echo "🚀 Running integration tests..."
     @uv run pytest tests/intg
+
+# Run SDK tests
+sdk-test:
+    @echo "🚀 Running SDK tests..."
+    @uv run pytest tests/sdk
 
 docker-test:
     @just build-test
