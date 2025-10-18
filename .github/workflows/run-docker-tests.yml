@@ -16,9 +16,6 @@ jobs:
     steps:
       - uses: ./.github/actions/setup
 
-      - name: Create .env file from example
-        run: cp .env.example .env
-
       - name: Run tests
         run: |
           just ${{ matrix.test_target }}

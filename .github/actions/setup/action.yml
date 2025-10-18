@@ -29,3 +29,7 @@ runs:
 
     - name: Install just
       uses: extractions/setup-just@v2
+
+    - name: Create .env file from example
+      run: cp .env.example .env
+      shell: bash
