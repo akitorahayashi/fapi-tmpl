@@ -23,7 +23,7 @@ help:
 
 # Initialize project: install dependencies and create the .env file
 setup:
-    @echo "Installing python dependencies with uv..."
+    @echo "🐍 Installing python dependencies with uv..."
     @uv sync
     @echo "Creating environment file..."
     @if [ ! -f .env ] && [ -f .env.example ]; then \
