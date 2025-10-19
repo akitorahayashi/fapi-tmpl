@@ -122,9 +122,15 @@ e2e-test:
 # CLEANUP
 # ==============================================================================
 
-# Remove __pycache__ and virtual environment
+# Remove __pycache__ and .venv to make project lightweight
 clean:
-    @echo "🧹 Tidying up project artifacts..."
+    @echo "🧹 Cleaning up project..."
     @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-    @rm -rf .venv .pytest_cache .ruff_cache
+    @rm -rf .venv
+    @rm -rf .pytest_cache
+    @rm -rf .ruff_cache
+    @rm -rf .aider.tags.cache.v4
+    @rm -rf .serena/cache
+    @rm -rf .uv-cache
+    @rm -rf .tmp
     @echo "✅ Cleanup completed"

@@ -10,7 +10,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: ./.github/actions/setup
+      - name: Setup environment
+        uses: ./.github/actions/setup
         with:
           dependencies-command: 'uv sync --only-group dev --frozen'
 

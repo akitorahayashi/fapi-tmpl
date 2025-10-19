@@ -17,7 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: ./.github/actions/setup
+      - name: Setup environment
+        uses: ./.github/actions/setup
+        with:
+          dependency-command: 'uv sync --frozen'
 
       - name: Run tests
         run: |
