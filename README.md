@@ -37,6 +37,10 @@ just format   # auto-format with black and ruff --fix
 ## 🧱 Project Structure
 
 ```
+├── dev/
+│   └── mocks/
+│       └── services/
+│           └── mock_greeting_service.py  # Toggleable mock implementation
 ├── src/
 │   └── fapi_tmpl/
 │       ├── api/
@@ -79,6 +83,7 @@ The container listens on port `8000` and exposes `/health` for readiness checks.
 Environment variables are loaded from `.env` (managed by `just setup`):
 
 - `FAPI_TMPL_APP_NAME` – application display name (default `fapi-tmpl`).
+- `FAPI_TMPL_USE_MOCK_GREETING` – when `true`, injects the development mock greeting service.
 - `FAPI_TMPL_BIND_IP` / `FAPI_TMPL_BIND_PORT` – bind address when running under Docker (defaults `0.0.0.0:8000`).
 - `FAPI_TMPL_DEV_PORT` – port used by `just dev` (default `8000`).
 
