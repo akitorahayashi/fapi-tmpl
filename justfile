@@ -112,7 +112,7 @@ build-test:
 # Run e2e tests
 e2e-test:
     @echo "🚀 Building temporary image for e2e tests..."
-    @docker build --target production -t fapi-tmpl-e2e:latest .
+    @docker build --target development -t fapi-tmpl-e2e:latest .
     @echo "🚀 Running e2e tests..."
     @uv run pytest tests/e2e
     @echo "🧹 Cleaning up e2e test image..."
