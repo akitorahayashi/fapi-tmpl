@@ -1,9 +1,9 @@
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from .config import AppSettings
-from .protocols.greeting_service_protocol import GreetingServiceProtocol
-from .services.greeting_service import GreetingService
+from ..config import AppSettings
+from ..protocols.greeting_service_protocol import GreetingServiceProtocol
+from ..services.greeting_service import GreetingService
 
 if TYPE_CHECKING:  # pragma: no cover - import only for type checking
     pass

@@ -73,13 +73,14 @@ lint:
 # TESTING
 # ==============================================================================
 
-# Run all tests
-test: 
+# Run complete test suite
+test:
     @just local-test
     @just docker-test
     @echo "✅ All tests passed!"
 
-local-test: 
+# Run lightweight local test suite
+local-test:
     @just unit-test
     @just intg-test
     @echo "✅ All local tests passed!"
@@ -94,6 +95,7 @@ intg-test:
     @echo "🚀 Running integration tests..."
     @uv run pytest tests/intg
 
+# Run all Docker-based tests
 docker-test:
     @just build-test
     @just e2e-test
@@ -101,16 +103,20 @@ docker-test:
 
 # Build Docker image for testing without leaving artifacts
 build-test:
-    @echo "Building Docker image for testing..."
-    @TEMP_IMAGE_TAG=$(date +%s)-build-test; \
-    docker build --target production --tag temp-build-test:$TEMP_IMAGE_TAG . && \
-    echo "Build successful. Cleaning up temporary image..." && \
-    docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
+    @echo "Building Docker image to verify build process..."
+    docker build --no-cache --target production -t test-build:temp . || (echo "Docker build failed"; exit 1)
+    @echo "✅ Docker build successful"
+    @echo "Cleaning up test image..."
+    -docker rmi test-build:temp 2>/dev/null || true
 
 # Run e2e tests
 e2e-test:
+    @echo "🚀 Building temporary image for e2e tests..."
+    @docker build --target production -t fapi-tmpl-e2e:latest .
     @echo "🚀 Running e2e tests..."
     @uv run pytest tests/e2e
+    @echo "🧹 Cleaning up e2e test image..."
+    -@docker rmi fapi-tmpl-e2e:latest 2>/dev/null || true
 
 # ==============================================================================
 # CLEANUP

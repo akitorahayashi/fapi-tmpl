@@ -1,10 +1,23 @@
 """Shared pytest fixtures for the fapi-tmpl project template."""
 
+
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from fapi_tmpl.api.main import app as fastapi_app
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_environment():
+    """Setup test environment with dotenv loading."""
+    # Load environment variables if .env exists
+    try:
+        import dotenv
+
+        dotenv.load_dotenv()
+    except ImportError:
+        pass
 
 
 @pytest.fixture()

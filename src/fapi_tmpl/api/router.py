@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from ..dependencies import get_greeting_service
 from ..protocols.greeting_service_protocol import GreetingServiceProtocol
+from .dependencies import get_greeting_service
 
 router = APIRouter()
 
