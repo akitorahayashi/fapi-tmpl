@@ -1,6 +1,5 @@
 """End-to-end test fixtures using testcontainers."""
 
-
 import httpx
 import pytest
 from testcontainers.core.container import DockerContainer

@@ -1,6 +1,5 @@
 """Shared pytest fixtures for the fapi-tmpl project template."""
 
-
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient

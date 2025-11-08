@@ -18,7 +18,9 @@ class TestIntegration:
     """Integration tests for component interactions."""
 
     @pytest.mark.asyncio
-    async def test_greeting_service_integration_with_real_service(self, monkeypatch, async_client: AsyncClient):
+    async def test_greeting_service_integration_with_real_service(
+        self, monkeypatch, async_client: AsyncClient
+    ):
         """Test that the greeting service integrates correctly with the real implementation."""
         monkeypatch.delenv("FAPI_TMPL_USE_MOCK_GREETING", raising=False)
 
@@ -28,7 +30,9 @@ class TestIntegration:
         assert response.json() == {"message": "Hello, Alice"}
 
     @pytest.mark.asyncio
-    async def test_greeting_service_integration_with_mock_service(self, monkeypatch, async_client: AsyncClient):
+    async def test_greeting_service_integration_with_mock_service(
+        self, monkeypatch, async_client: AsyncClient
+    ):
         """Test that the greeting service integrates correctly with the mock implementation."""
         monkeypatch.setenv("FAPI_TMPL_USE_MOCK_GREETING", "true")
 

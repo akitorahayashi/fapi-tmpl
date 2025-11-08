@@ -1,75 +1,97 @@
 # syntax=docker/dockerfile:1.7-labs
 # ==============================================================================
-# Stage 1: Base
-# - Base stage with uv setup and dependency files
+# Multi-stage Dockerfile for FastAPI application
 # ==============================================================================
-FROM python:3.12-slim as base
+
+# ==============================================================================
+# Stage: base
+# - Python base image with uv and dependency files
+# ==============================================================================
+FROM python:3.12-slim AS base
 
 WORKDIR /app
 
-# Install uv
-RUN --mount=type=cache,target=/root/.cache \
-    pip install uv
+RUN pip install uv
 
-# Copy dependency definition files
 COPY pyproject.toml uv.lock ./
 
 
 # ==============================================================================
-# Stage 2: Production Dependencies
-# - Creates a lean virtual environment with only production dependencies.
+# Stage: dev-deps
+# - All dependencies including development packages
 # ==============================================================================
-FROM base as prod-deps
+FROM base AS dev-deps
 
-# Install only production dependencies
-RUN --mount=type=cache,target=/root/.cache \
-    uv sync --no-dev
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,target=/root/.cache uv sync
 
 
 # ==============================================================================
-# Stage 3: Production
-# - Creates the final, lightweight production image.
-# - Copies the lean venv and only necessary application files.
+# Stage: prod-deps
+# - Production dependencies only
 # ==============================================================================
-FROM python:3.12-slim AS production
+FROM base AS prod-deps
 
-# Install uv for running commands
-RUN pip install uv
+RUN --mount=type=cache,target=/root/.cache uv sync --no-dev
 
-# Create a non-root user and group for security
+
+# ==============================================================================
+# Stage: runtime-base
+# - Common runtime setup for development and production
+# ==============================================================================
+FROM python:3.12-slim AS runtime-base
+
+# Create non-root user
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
 
-# Set the working directory
 WORKDIR /app
-
-# Grant ownership of the working directory to the non-root user
 RUN chown appuser:appgroup /app
 
-ENV PYTHONPATH="/app/src"
-
-# Copy the lean virtual environment from the prod-deps stage
-COPY --from=prod-deps --chown=appuser:appgroup /app/.venv ./.venv
-
-# Set the PATH to include the venv's bin directory for simpler command execution
 ENV PATH="/app/.venv/bin:${PATH}"
-
-# Copy only the necessary application code and configuration, excluding tests
-COPY --chown=appuser:appgroup src/ ./src
-COPY --chown=appuser:appgroup pyproject.toml .
-COPY --chown=appuser:appgroup entrypoint.sh .
-
-# Grant execute permissions to the entrypoint script
-RUN chmod +x entrypoint.sh
-
-# Switch to the non-root user
-USER appuser
-
-# Expose the port the app runs on (will be mapped by Docker Compose)
+ENV PYTHONPATH="/app/src"
 EXPOSE 8000
 
-# Healthcheck using only Python's standard library to avoid extra dependencies
+
+# ==============================================================================
+# Stage: development
+# - Development environment with all tools and dependencies
+# ==============================================================================
+FROM runtime-base AS development
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+COPY --from=dev-deps /app/.venv ./.venv
+COPY --chown=appuser:appgroup src/ ./src
+COPY --chown=appuser:appgroup dev/ ./dev
+COPY --chown=appuser:appgroup tests/ ./tests
+COPY --chown=appuser:appgroup pyproject.toml entrypoint.sh ./
+
+RUN chmod +x entrypoint.sh
+
+USER appuser
+
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
 
-# Set the entrypoint script to be executed when the container starts
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+
+# ==============================================================================
+# Stage: production
+# - Minimal production image
+# ==============================================================================
+FROM runtime-base AS production
+
+COPY --from=prod-deps /app/.venv ./.venv
+COPY --chown=appuser:appgroup src/ ./src
+COPY --chown=appuser:appgroup pyproject.toml entrypoint.sh ./
+
+RUN chmod +x entrypoint.sh
+
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
+
 ENTRYPOINT ["/app/entrypoint.sh"]

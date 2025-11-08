@@ -18,7 +18,7 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.6.1",
-    "testcontainers>=4.13.0,<5.0.0",
+    "testcontainers>=4.8.0,<5.0.0",
 ]
 
 [build-system]
@@ -33,8 +33,9 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
 pythonpath = ["."]
+addopts = "-v -s --tb=short"
 filterwarnings = [
-    "ignore::DeprecationWarning",
+    "ignore::DeprecationWarning:testcontainers",
 ]
 
 [tool.black]
