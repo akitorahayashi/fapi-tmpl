@@ -30,8 +30,8 @@ The service will be available at `http://127.0.0.1:8000/health`.
 
 ```shell
 just test     # pytest test suite
-just lint     # black --check and ruff
-just format   # auto-format with black and ruff --fix
+just check    # ruff format --check, ruff check, and mypy
+just fix      # auto-format with ruff format and ruff --fix
 ```
 
 ## 🧱 Project Structure
