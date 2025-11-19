@@ -59,15 +59,18 @@ build:
 # CODE QUALITY
 # ==============================================================================
 
-# Format code using Black and fix Ruff findings
-format:
-    @uv run black .
+# Automatically format and fix code (Ruff)
+fix:
+    @echo "🔧 Formatting and fixing code..."
+    @uv run ruff format .
     @uv run ruff check . --fix
 
-# Perform static code analysis
-lint:
-    @uv run black --check .
+# Run static checks (Ruff, Mypy)
+check:
+    @echo "🧐 Running static checks..."
+    @uv run ruff format --check .
     @uv run ruff check .
+    @uv run mypy .
 
 # ==============================================================================
 # TESTING
