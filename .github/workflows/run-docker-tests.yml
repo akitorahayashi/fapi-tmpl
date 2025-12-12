@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test_target: [build-test, e2e-test]
+        test_target: [api, e2e]
       fail-fast: false
 
     steps:
@@ -18,8 +18,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup
         with:
-          dependency-command: 'uv sync --frozen'
+          dependencies-command: 'uv sync --frozen'
 
       - name: Run tests
-        run: |
-          just ${{ matrix.test_target }}
+        run: just ${{ matrix.test_target }}-test

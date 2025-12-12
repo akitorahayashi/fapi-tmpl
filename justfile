@@ -8,6 +8,9 @@ APP_NAME := env("FAPI_TMPL_APP_NAME", "fapi-tmpl")
 HOST_IP := env("FAPI_TMPL_BIND_IP", "127.0.0.1")
 DEV_PORT := env("FAPI_TMPL_DEV_PORT", "8000")
 
+DEV_COMPOSE_PROJECT := env("FAPI_TMPL_DEV_PROJECT_NAME", "fapi-tmpl-dev")
+PROD_COMPOSE_PROJECT := env("FAPI_TMPL_PROD_PROJECT_NAME", "fapi-tmpl-prod")
+
 # default target
 default: help
 
@@ -38,22 +41,44 @@ setup:
 # Development Environment Commands
 # ==============================================================================
 
-# Run local development server
+# Run local development server (in-process FastAPI, no Docker)
 dev:
     @echo "Starting local development server..."
     @uv run uvicorn fapi_tmpl.api.main:app --reload --host {{HOST_IP}} --port {{DEV_PORT}}
 
-# Start production-like environment with Docker Compose
+# Start development stack (development target)
 up:
-    @docker compose up -d
+    @echo "Starting development stack..."
+    @COMPOSE_PROJECT_NAME={{DEV_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=development docker compose up -d
 
-# Stop Docker Compose environment
+# Stop development stack
 down:
-    @docker compose down --remove-orphans
+    @echo "Stopping development stack..."
+    @COMPOSE_PROJECT_NAME={{DEV_COMPOSE_PROJECT}} docker compose down --remove-orphans
 
-# Build Docker image
-build:
-    @docker build --target production --tag {{APP_NAME}}:latest .
+# Rebuild and restart development stack
+rebuild:
+    @echo "Rebuilding development stack..."
+    @COMPOSE_PROJECT_NAME={{DEV_COMPOSE_PROJECT}} docker compose down --remove-orphans
+    @COMPOSE_PROJECT_NAME={{DEV_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=development docker compose build --no-cache
+    @COMPOSE_PROJECT_NAME={{DEV_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=development docker compose up -d
+
+# Start production stack (production target)
+up-prod:
+    @echo "Starting production stack..."
+    @COMPOSE_PROJECT_NAME={{PROD_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=production docker compose up -d
+
+# Stop production stack
+down-prod:
+    @echo "Stopping production stack..."
+    @COMPOSE_PROJECT_NAME={{PROD_COMPOSE_PROJECT}} docker compose down --remove-orphans
+
+# Rebuild and restart production stack
+rebuild-prod:
+    @echo "Rebuilding production stack..."
+    @COMPOSE_PROJECT_NAME={{PROD_COMPOSE_PROJECT}} docker compose down --remove-orphans
+    @COMPOSE_PROJECT_NAME={{PROD_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=production docker compose build --no-cache
+    @COMPOSE_PROJECT_NAME={{PROD_COMPOSE_PROJECT}} FAPI_TMPL_BUILD_TARGET=production docker compose up -d
 
 # ==============================================================================
 # CODE QUALITY
@@ -66,8 +91,8 @@ fix:
     @uv run ruff check . --fix
 
 # Run static checks (Ruff, Mypy)
-check:
-    @echo "🧐 Running static checks..."
+check: fix
+    @echo "🔍 Running static checks..."
     @uv run ruff format --check .
     @uv run ruff check .
     @uv run mypy .
@@ -82,7 +107,7 @@ test:
     @just docker-test
     @echo "✅ All tests passed!"
 
-# Run lightweight local test suite
+# Run lightweight local (in-process) test suite
 local-test:
     @just unit-test
     @just intg-test
@@ -93,33 +118,30 @@ unit-test:
     @echo "🚀 Running unit tests..."
     @uv run pytest tests/unit
 
-# Run integration tests
+# Run integration tests (in-process FastAPI with ASGITransport)
 intg-test:
     @echo "🚀 Running integration tests..."
     @uv run pytest tests/intg
 
 # Run all Docker-based tests
 docker-test:
-    @just build-test
+    @just api-test
     @just e2e-test
     @echo "✅ All Docker tests passed!"
 
-# Build Docker image for testing without leaving artifacts
-build-test:
-    @echo "Building Docker image to verify build process..."
-    docker build --no-cache --target production -t test-build:temp . || (echo "Docker build failed"; exit 1)
-    @echo "✅ Docker build successful"
-    @echo "Cleaning up test image..."
-    -docker rmi test-build:temp 2>/dev/null || true
+# Run dockerized API tests against development target
+api-test:
+    @echo "🚀 Building image for dockerized API tests (development target)..."
+    @docker build --target development -t fapi-tmpl-e2e:dev .
+    @echo "🚀 Running dockerized API tests (development target)..."
+    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:dev uv run pytest tests/api
 
-# Run e2e tests
+# Run e2e tests against production-like target
 e2e-test:
-    @echo "🚀 Building temporary image for e2e tests..."
-    @docker build --target development -t fapi-tmpl-e2e:latest .
-    @echo "🚀 Running e2e tests..."
-    @uv run pytest tests/e2e
-    @echo "🧹 Cleaning up e2e test image..."
-    -@docker rmi fapi-tmpl-e2e:latest 2>/dev/null || true
+    @echo "🚀 Building image for production acceptance tests..."
+    @docker build --target production -t fapi-tmpl-e2e:prod .
+    @echo "🚀 Running production acceptance tests..."
+    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:prod uv run pytest tests/e2e
 
 # ==============================================================================
 # CLEANUP

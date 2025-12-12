@@ -18,7 +18,7 @@ just setup
 
 This installs dependencies with `uv` and creates a local `.env` file if one does not exist.
 
-### Run the Application
+### Run the Application (Local, In-Process)
 
 ```shell
 just dev
@@ -29,9 +29,12 @@ The service will be available at `http://127.0.0.1:8000/health`.
 ### Run Tests and Linters
 
 ```shell
-just test     # pytest test suite
-just check    # ruff format --check, ruff check, and mypy
-just fix      # auto-format with ruff format and ruff --fix
+just test       # full test matrix (local + dockerized)
+just local-test # unit + intg (ASGITransport, in-process FastAPI)
+just api-test   # dockerized API tests (development target)
+just e2e-test   # dockerized production acceptance tests
+just check      # ruff format --check, ruff check, and mypy
+just fix        # auto-format with ruff format and ruff --fix
 ```
 
 ## 🧱 Project Structure
@@ -53,13 +56,10 @@ just fix      # auto-format with ruff format and ruff --fix
 │       ├── protocols/       # Protocol definitions for service interfaces
 │       └── services/        # Concrete service implementations
 ├── tests/
-│   ├── unit/
-│   ├── intg/
-│   │   ├── test_api.py      # Health endpoint tests
-│   │   └── test_greeting_api.py  # Greeting endpoint tests with DI overrides
-│   └── e2e/
-│       └── api/
-│           └── test_health.py
+│   ├── unit/                  # Pure unit tests (no FastAPI)
+│   ├── intg/                  # In-process API tests (ASGITransport, no Docker)
+│   ├── api/                   # Dockerized API tests (development target)
+│   └── e2e/                   # Production-like E2E tests
 ├── justfile
 ├── docker-compose.yml
 ├── Dockerfile
@@ -69,14 +69,12 @@ just fix      # auto-format with ruff format and ruff --fix
 
 ## 🐳 Docker Usage
 
-Build and run the containerised service:
+The template assumes Docker is used for:
 
-```shell
-just build
-docker compose up -d
-```
+- Development stacks (`just up`, `just down`, `just rebuild`, `just up-prod`, `just down-prod`, `just rebuild-prod`)
+- Dockerized API / E2E tests (`just api-test`, `just e2e-test`)
 
-The container listens on port `8000` and exposes `/health` for readiness checks.
+The primary compose entrypoint is `docker-compose.yml`. See `justfile` for the exact environment variables used for dev vs production stacks.
 
 ## 🔧 Configuration
 

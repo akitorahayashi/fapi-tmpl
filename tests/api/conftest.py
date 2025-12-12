@@ -1,4 +1,4 @@
-"""End-to-end test fixtures using testcontainers."""
+"""API tests executed against the dockerized development stack."""
 
 import os
 
@@ -10,27 +10,26 @@ from testcontainers.core.wait_strategies import HttpWaitStrategy
 
 
 @pytest.fixture(scope="session")
-def e2e_network():
+def api_network():
     with Network() as network:
         yield network
 
 
 @pytest.fixture(scope="session")
 def api_image():
-    # Use the temporary image built for e2e tests
+    # Use the temporary image built for API tests
     return os.environ.get("FAPI_TMPL_E2E_IMAGE", "fapi-tmpl-e2e:latest")
 
 
 @pytest.fixture(scope="session")
-def api_base_url(api_image, e2e_network):
+def api_base_url(api_image, api_network):
     env = {
-        # Production-target E2E tests: run without mock greeting service
-        "FAPI_TMPL_USE_MOCK_GREETING": "false",
+        "FAPI_TMPL_USE_MOCK_GREETING": "true",
     }
     api_wait_strategy = HttpWaitStrategy(8000, "/health").for_status_code(200)
     with (
         DockerContainer(image=api_image)
-        .with_network(e2e_network)
+        .with_network(api_network)
         .with_envs(**env)
         .with_exposed_ports(8000)
         .waiting_for(api_wait_strategy)
@@ -39,7 +38,7 @@ def api_base_url(api_image, e2e_network):
         host = api.get_container_host_ip()
         port = api.get_exposed_port(8000)
         base_url = f"http://{host}:{port}"
-        print(f"\n🚀 E2E API running at: {base_url}")
+        print(f"\n🚀 API tests running against: {base_url}")
         yield base_url
 
 
