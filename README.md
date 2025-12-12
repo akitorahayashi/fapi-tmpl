@@ -72,7 +72,7 @@ just fix        # auto-format with ruff format and ruff --fix
 
 The template assumes Docker is used for:
 
-- Development stacks (`just up`, `just down`, `just rebuild`, `just up-prod`, `just down-prod`)
+- Development stacks (`just up`, `just down`, `just rebuild`, `just up-prod`, `just down-prod`, `just rebuild-prod`)
 - Dockerized API / E2E tests (`just api-test`, `just e2e-test`)
 
 The primary compose entrypoint is `docker-compose.yml`. See `justfile` for the exact environment variables used for dev vs production stacks.
