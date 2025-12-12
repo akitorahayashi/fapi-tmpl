@@ -24,5 +24,5 @@
 - `tests/`: unit/intg/e2e layout kept light so additional checks can drop in without restructuring.
 
 ## Tooling Snapshot
-- `justfile`: run/lint/test/build tasks used locally and in CI.
+- `justfile`: run/lint/test tasks (`local-test`, `api-test`, `e2e-test`) used locally and in CI. Prefer `just test` as the unified entrypoint.
 - `uv.lock` + `pyproject.toml`: reproducible dependency graph; regenerate with `uv pip compile` when deps change.
