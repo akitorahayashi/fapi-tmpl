@@ -134,7 +134,7 @@ api-test:
     @echo "🚀 Building image for dockerized API tests (development target)..."
     @docker build --target development -t fapi-tmpl-e2e:dev .
     @echo "🚀 Running dockerized API tests (development target)..."
-    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:dev uv run pytest tests/e2e/api
+    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:dev uv run pytest tests/api
 
 # Run e2e tests against production-like target
 e2e-test:

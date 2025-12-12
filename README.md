@@ -58,9 +58,8 @@ just fix        # auto-format with ruff format and ruff --fix
 ├── tests/
 │   ├── unit/                  # Pure unit tests (no FastAPI)
 │   ├── intg/                  # In-process API tests (ASGITransport, no Docker)
-│   └── e2e/
-│       └── api/
-│           └── test_health.py # Dockerized API /health smoke tests
+│   ├── api/                   # Dockerized API tests (development target)
+│   └── e2e/                   # Production-like E2E tests
 ├── justfile
 ├── docker-compose.yml
 ├── Dockerfile
