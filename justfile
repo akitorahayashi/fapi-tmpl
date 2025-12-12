@@ -132,16 +132,16 @@ docker-test:
 # Run dockerized API tests against development target
 api-test:
     @echo "🚀 Building image for dockerized API tests (development target)..."
-    @docker build --target development -t fapi-tmpl-e2e:latest .
+    @docker build --target development -t fapi-tmpl-e2e:dev .
     @echo "🚀 Running dockerized API tests (development target)..."
-    @uv run pytest tests/e2e/api
+    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:dev uv run pytest tests/e2e/api
 
 # Run e2e tests against production-like target
 e2e-test:
     @echo "🚀 Building image for production acceptance tests..."
-    @docker build --target production -t fapi-tmpl-e2e:latest .
+    @docker build --target production -t fapi-tmpl-e2e:prod .
     @echo "🚀 Running production acceptance tests..."
-    @uv run pytest tests/e2e
+    @FAPI_TMPL_E2E_IMAGE=fapi-tmpl-e2e:prod uv run pytest tests/e2e
 
 # ==============================================================================
 # CLEANUP

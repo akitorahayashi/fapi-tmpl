@@ -1,5 +1,7 @@
 """End-to-end test fixtures using testcontainers."""
 
+import os
+
 import httpx
 import pytest
 from testcontainers.core.container import DockerContainer
@@ -16,7 +18,7 @@ def e2e_network():
 @pytest.fixture(scope="session")
 def api_image():
     # Use the temporary image built for e2e tests
-    return "fapi-tmpl-e2e:latest"
+    return os.environ.get("FAPI_TMPL_E2E_IMAGE", "fapi-tmpl-e2e:latest")
 
 
 @pytest.fixture(scope="session")
