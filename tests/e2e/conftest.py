@@ -24,7 +24,8 @@ def api_image():
 @pytest.fixture(scope="session")
 def api_base_url(api_image, e2e_network):
     env = {
-        "FAPI_TMPL_USE_MOCK_GREETING": "true",
+        # Production-target E2E tests: run without mock greeting service
+        "FAPI_TMPL_USE_MOCK_GREETING": "false",
     }
     api_wait_strategy = HttpWaitStrategy(8000, "/health").for_status_code(200)
     with (
