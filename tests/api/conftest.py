@@ -46,4 +46,3 @@ def api_base_url(api_image, api_network):
 async def async_client(api_base_url):
     async with httpx.AsyncClient(base_url=api_base_url) as client:
         yield client
-
