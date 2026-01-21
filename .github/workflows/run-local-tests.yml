@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test_target: [unit-test, intg-test]
+        test_target: [unit, intg]
       fail-fast: false
 
     steps:
@@ -22,4 +22,4 @@ jobs:
 
       - name: Run tests
         run: |
-          just ${{ matrix.test_target }}
+          just ${{ matrix.test_target }}-test
